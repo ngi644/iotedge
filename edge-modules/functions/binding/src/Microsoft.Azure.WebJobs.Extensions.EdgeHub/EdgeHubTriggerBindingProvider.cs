@@ -34,11 +34,6 @@ namespace Microsoft.Azure.WebJobs.Extensions.EdgeHub
                 return null;
             }
 
-            if (parameter.ParameterType != typeof(Message) && parameter.ParameterType != typeof(string))
-            {
-                throw new InvalidOperationException($"Can't bind EdgeHubTriggerAttribute to type '{parameter.ParameterType}'.");
-            }
-
             await this.TrySetEventDefaultHandlerAsync().ConfigureAwait(false);
 
             var messageProcessor = new EdgeHubMessageProcessor();

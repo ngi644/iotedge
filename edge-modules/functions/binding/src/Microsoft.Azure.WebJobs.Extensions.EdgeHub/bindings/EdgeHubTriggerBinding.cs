@@ -8,12 +8,12 @@ namespace Microsoft.Azure.WebJobs.Extensions.EdgeHub
     using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Devices.Client;
-    using Microsoft.Azure.WebJobs.Host.Bindings;
-    using Microsoft.Azure.WebJobs.Host.Executors;
-    using Microsoft.Azure.WebJobs.Host.Listeners;
-    using Microsoft.Azure.WebJobs.Host.Protocols;
-    using Microsoft.Azure.WebJobs.Host.Triggers;
+    using Devices.Client;
+    using Host.Bindings;
+    using Host.Executors;
+    using Host.Listeners;
+    using Host.Protocols;
+    using Host.Triggers;
 
     /// <summary>
     /// Implements a trigger binding for EdgeHub which triggers a function
@@ -45,8 +45,7 @@ namespace Microsoft.Azure.WebJobs.Extensions.EdgeHub
                 throw new NotSupportedException("Message is required.");
             }
 
-            IValueBinder valueBinder = new EdgeHubValueBinder(this.parameter.ParameterType, triggerValue);
-            return Task.FromResult<ITriggerData>(new TriggerData(valueBinder, this.GetBindingData(triggerValue)));
+            return Task.FromResult<ITriggerData>(new TriggerData(null, this.GetBindingData(triggerValue)));
         }
 
         public Task<IListener> CreateListenerAsync(ListenerFactoryContext context)
@@ -89,35 +88,6 @@ namespace Microsoft.Azure.WebJobs.Extensions.EdgeHub
             public override string GetTriggerReason(IDictionary<string, string> arguments)
             {
                 return string.Format(CultureInfo.InvariantCulture, "EdgeHub trigger fired at {0}", DateTime.Now.ToString("o", CultureInfo.InvariantCulture));
-            }
-        }
-
-        class EdgeHubValueBinder : IValueBinder
-        {
-            readonly object value;
-            readonly Type type;
-
-            public EdgeHubValueBinder(Type type, Message value)
-            {
-                this.type = type;
-                this.value = value;
-            }
-
-            public Type Type => this.type;
-
-            public Task<object> GetValueAsync()
-            {
-                return Task.FromResult(this.value);
-            }
-
-            public Task SetValueAsync(object value, CancellationToken cancellationToken)
-            {
-                return Task.FromResult(true);
-            }
-
-            public string ToInvokeString()
-            {
-                return "Message";
             }
         }
 
