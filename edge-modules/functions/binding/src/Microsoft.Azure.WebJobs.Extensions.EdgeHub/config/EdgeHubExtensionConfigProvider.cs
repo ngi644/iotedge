@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 
+using Microsoft.Azure.WebJobs.Host.Bindings;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Azure.WebJobs.Extensions.EdgeHub.Config
@@ -26,25 +27,40 @@ namespace Microsoft.Azure.WebJobs.Extensions.EdgeHub.Config
             var bindingProvider = new EdgeHubTriggerBindingProvider();
             var rule = context.AddBindingRule<EdgeHubTriggerAttribute>();
             rule.AddConverter<Message, string>(MessageToStringConverter);
-            //rule.AddConverter<string, Message>(StringToMessageConverter);
+            rule.AddConverter<Message, JObject>(MessageToJObjectConverter);
+            
             rule.BindToTrigger<Message>(bindingProvider);
 
             var rule2 = context.AddBindingRule<EdgeHubAttribute>();
-            rule2.BindToCollector<Message>(typeof(EdgeHubCollectorBuilder));
+            rule2.BindToCollector<Message>(typeof(EdgeHubCollectorBuilder<>));
+            rule2.AddConverter<string, Message>(StringToMessageConverter);
+            //rule2.BindToCollector<Message>(typeof(EdgeHubCollectorBuilder));
         }
 
-        private string MessageToStringConverter(Message arg)
+        private Message StringToMessageConverter(string arg)
         {
-            string body = System.Text.Encoding.UTF8.GetString(arg.GetBytes());
+            return new Message();
+        }
 
-            JObject bodyObject = new JObject();
+        private JObject MessageToJObjectConverter(Message msg)
+        {
+            string body = System.Text.Encoding.UTF8.GetString(msg.GetBytes());
+
+            JObject messageObject = new JObject();
             var messageJson = JsonConvert.DeserializeObject(body);
-            bodyObject["body"] = messageJson as JToken;
+            messageObject["body"] = messageJson as JToken;
 
-            var applicationProperties = JsonConvert.SerializeObject(arg.Properties);
-            bodyObject["applicationProperties"] = applicationProperties;
+            var applicationProperties = JsonConvert.SerializeObject(msg.Properties);
+            messageObject["applicationProperties"] = applicationProperties;
 
-            return JsonConvert.SerializeObject(bodyObject);
+            return messageObject;
+        }
+
+        private string MessageToStringConverter(Message msg)
+        {
+            JObject messageObject = MessageToJObjectConverter(msg);
+
+            return JsonConvert.SerializeObject(messageObject);
         }
     }
 }
