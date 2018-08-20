@@ -28,17 +28,16 @@ namespace Microsoft.Azure.WebJobs.Extensions.EdgeHub.Config
             var rule = context.AddBindingRule<EdgeHubTriggerAttribute>();
             rule.AddConverter<Message, string>(MessageToStringConverter);
             rule.AddConverter<Message, JObject>(MessageToJObjectConverter);
-            
             rule.BindToTrigger<Message>(bindingProvider);
 
             var rule2 = context.AddBindingRule<EdgeHubAttribute>();
-            rule2.BindToCollector<Message>(typeof(EdgeHubCollectorBuilder<>));
+            rule2.BindToCollector<Message>(typeof(EdgeHubCollectorBuilder));
             rule2.AddConverter<string, Message>(StringToMessageConverter);
-            //rule2.BindToCollector<Message>(typeof(EdgeHubCollectorBuilder));
         }
 
         private Message StringToMessageConverter(string arg)
         {
+            // TODO
             return new Message();
         }
 
