@@ -1,4 +1,4 @@
-FROM armhf/ubuntu:16.04
+FROM arm32v7/debian:stretch
 
 ########### Install Gateway dependencies ###########
 RUN apt-get update && apt-get install -y \

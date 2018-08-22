@@ -186,7 +186,7 @@ sync_ble_gateway()
 build_ble_gateway()
 {
     echo "Building Gateway Sources located here $GATEWAY_DIR"
-    $GATEWAY_DIR/tools/build.sh
+    $GATEWAY_DIR/v1/tools/build.sh
     if [ $? -ne 0 ]; then
         echo "Gateway Build Failed. Exit Code $?"
         exit $?
@@ -202,10 +202,10 @@ publish_ble_module()
     mkdir $PUBLISH_DIR
     mkdir $PUBLISH_DIR/lib
     mkdir $PUBLISH_DIR/install-deps
-    find  $GATEWAY_DIR/build -name '*.so' -exec cp {} $PUBLISH_DIR/lib \;
-    cp -r $GATEWAY_DIR/install-deps/include $PUBLISH_DIR/install-deps
-    cp -r $GATEWAY_DIR/install-deps/lib $PUBLISH_DIR/install-deps
-    cp    $GATEWAY_DIR/build/samples/ble_gateway/ble_gateway $PUBLISH_DIR
+    find  $GATEWAY_DIR/v1/build -name '*.so' -exec cp {} $PUBLISH_DIR/lib \;
+    cp -r $GATEWAY_DIR/v1/install-deps/include $PUBLISH_DIR/install-deps
+    cp -r $GATEWAY_DIR/v1/install-deps/lib $PUBLISH_DIR/install-deps
+    cp    $GATEWAY_DIR/v1/build/samples/ble_gateway/ble_gateway $PUBLISH_DIR
 }
 
 ###############################################################################
@@ -216,7 +216,7 @@ build_edge_ble_docker_container()
     docker_file="$SCRIPT_DIR"
     docker_file+="/docker/${ARCH}/Dockerfile"
     
-    docker_build_cmd="docker build -t ${DOCKER_REGISTRY}/azedge-ble-${ARCH} -f ${docker_file} ."
+    docker_build_cmd="docker build -t ${DOCKER_REGISTRY}/azedge-ble-aiotg3-${ARCH} -f ${docker_file} ."
     echo "Running Command: $docker_build_cmd"
     $docker_build_cmd
     if [ $? -ne 0 ]; then
@@ -235,7 +235,7 @@ run_edge_ble_docker_container()
     docker_run_cmd="docker run "
     docker_run_cmd+="-v /var/run/dbus:/var/run/dbus "
     docker_run_cmd+="-v ${BLE_CONFIG_FILE}:/app/ble_config/config.json:ro "
-    docker_run_cmd+="${DOCKER_REGISTRY}/azedge-ble-${ARCH} "
+    docker_run_cmd+="${DOCKER_REGISTRY}/azedge-ble-aiotg3-${ARCH} "
     echo "Running Command: $docker_run_cmd"
     $docker_run_cmd
     if [ $? -ne 0 ]; then
@@ -247,7 +247,7 @@ run_edge_ble_docker_container()
 ###############################################################################
 # Main Script Execution
 ###############################################################################
-check_os
+# check_os
 check_arch
 process_args $@
 
